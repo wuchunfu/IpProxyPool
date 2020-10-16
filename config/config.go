@@ -1,74 +1,97 @@
 package config
 
-//const defaultConfigFile = "conf/config.yaml"
-//const defaultConfigDir = "../conf"
+import (
+	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"github.com/mitchellh/go-homedir"
+	logger "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"os"
+	"proxypool-go/middleware/database"
+	"proxypool-go/middleware/logutil"
+	"proxypool-go/models/configModel"
+	"proxypool-go/util/fileutil"
+)
 
-//var _ *viper.Viper
-//var InitConfig Server
+var (
+	Vip           = viper.New()
+	ConfigFile    = ""
+	SystemSetting = new(configModel.System)
+	DbSetting     = new(configModel.Database)
+	LogSetting    = new(configModel.Log)
+)
 
-//func init() {
-//	if !fileutil.PathExists(defaultConfigFile) {
-//		logger.Errorf("no such config directory: %s", defaultConfigFile)
-//	}
-//	vip := viper.New()
-//	//vip.AddConfigPath(defaultConfigDir)
-//	vip.SetConfigFile(defaultConfigFile)
-//	//vip.SetConfigName("config")
-//	vip.SetConfigType("yaml")
-//	err := vip.ReadInConfig()
-//	if err != nil {
-//		logger.Errorf("Failed to get config file!")
-//		panic(err.Error())
-//	}
-//	vip.WatchConfig()
-//	vip.OnConfigChange(func(e fsnotify.Event) {
-//		logger.Infof("Config file changed: %s", e.Name)
-//		if err := vip.Unmarshal(&InitConfig); err != nil {
-//			logger.Errorf("Failed to resolve config file!")
-//			panic(err.Error())
-//		}
-//	})
-//	if err := vip.Unmarshal(&InitConfig); err != nil {
-//		logger.Errorf("Failed to resolve config file!")
-//		panic(err.Error())
-//	}
-//	_ = vip
-//}
+// InitConfig reads in config file and ENV variables if set.
+func InitConfig() {
+	if ConfigFile != "" {
+		if !fileutil.PathExists(ConfigFile) {
+			logger.Errorf("no such file or directory: %s", ConfigFile)
+			os.Exit(-1)
+		} else {
+			// Use config file from the flag.
+			Vip.SetConfigFile(ConfigFile)
+			Vip.SetConfigType("yaml")
+		}
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			logger.Errorf("no such file or directory: %s", ConfigFile)
+			os.Exit(-1)
+		}
 
-//type Server struct {
-//	System   System   `mapstructure:"system" json:"system" yaml:"system"`
-//	Database Database `mapstructure:"database" json:"database" yaml:"database"`
-//	Log      Log      `mapstructure:"log" json:"log" yaml:"log"`
-//}
-//
-//type System struct {
-//	AppName        string `mapstructure:"appName" json:"appName" yaml:"appName"`
-//	HttpAddr       string `mapstructure:"httpAddr" json:"httpAddr" yaml:"httpAddr"`
-//	HttpPort       string `mapstructure:"httpPort" json:"httpPort" yaml:"httpPort"`
-//	SessionExpires string `mapstructure:"sessionExpires" json:"sessionExpires" yaml:"sessionExpires"`
-//}
-//
-//type Database struct {
-//	DbType       string `mapstructure:"dbType" json:"dbType" yaml:"dbType"`
-//	Host         string `mapstructure:"host" json:"host" yaml:"host"`
-//	Port         int    `mapstructure:"port" json:"port" yaml:"port"`
-//	DbName       string `mapstructure:"dbName" json:"dbName" yaml:"dbName"`
-//	Username     string `mapstructure:"username" json:"username" yaml:"username"`
-//	Password     string `mapstructure:"password" json:"password" yaml:"password"`
-//	Prefix       string `mapstructure:"prefix" json:"prefix" yaml:"prefix"`
-//	Charset      string `mapstructure:"charset" json:"charset" yaml:"charset"`
-//	MaxIdleConns int    `mapstructure:"maxIdleConns" json:"maxIdleConns" yaml:"maxIdleConns"`
-//	MaxOpenConns int    `mapstructure:"maxOpenConns" json:"maxOpenConns" yaml:"maxOpenConns"`
-//	SslMode      string `mapstructure:"sslMode" json:"sslMode" yaml:"sslMode"`
-//	Path         string `mapstructure:"path" json:"path" yaml:"path"`
-//}
-//
-//type Log struct {
-//	LogDirPath  string `mapstructure:"logDirPath" json:"logDirPath" yaml:"logDirPath"`
-//	LogFileName string `mapstructure:"logFileName" json:"logFileName" yaml:"logFileName"`
-//	LogLevel    string `mapstructure:"logLevel" json:"logLevel" yaml:"logLevel"`
-//	Mode        string `mapstructure:"mode" json:"mode" yaml:"mode"`
-//	Path        string `mapstructure:"path" json:"path" yaml:"path"`
-//	Name        string `mapstructure:"name" json:"name" yaml:"name"`
-//	Level       string `mapstructure:"level" json:"level" yaml:"level"`
-//}
+		// Search config in home directory with name ".newApp" (without extension).
+		Vip.AddConfigPath(home)
+		Vip.SetConfigType("yaml")
+		Vip.SetConfigName(".proxypool.yaml")
+	}
+	// If a config file is found, read it in.
+	err := Vip.ReadInConfig()
+	if err != nil {
+		logger.Errorf("no such file or directory: %s", ConfigFile)
+		logger.Errorf("Failed to get config file: %s", ConfigFile)
+	}
+	Vip.WatchConfig()
+	Vip.OnConfigChange(func(e fsnotify.Event) {
+		logger.Infof("Config file changed: %s\n", e.Name)
+		fmt.Printf("Config file changed: %s\n", e.Name)
+		GetInitConfig(Vip)
+	})
+	GetInitConfig(Vip)
+}
+
+func GetParams(vip *viper.Viper) {
+	// system
+	SystemSetting.AppName = vip.GetString("system.appName")
+	SystemSetting.HttpAddr = vip.GetString("system.httpAddr")
+	SystemSetting.HttpPort = vip.GetString("system.httpPort")
+	SystemSetting.SessionExpires = vip.GetString("system.sessionExpires")
+
+	// database
+	DbSetting.DbType = vip.GetString("database.dbType")
+	DbSetting.Host = vip.GetString("database.host")
+	DbSetting.Port = vip.GetInt("database.port")
+	DbSetting.DbName = vip.GetString("database.dbName")
+	DbSetting.Username = vip.GetString("database.username")
+	DbSetting.Password = vip.GetString("database.password")
+	DbSetting.Prefix = vip.GetString("database.prefix")
+	DbSetting.Charset = vip.GetString("database.charset")
+	DbSetting.MaxIdleConns = vip.GetInt("database.maxIdleConns")
+	DbSetting.MaxOpenConns = vip.GetInt("database.maxOpenConns")
+	DbSetting.SslMode = vip.GetString("database.sslMode")
+	DbSetting.Path = vip.GetString("database.path")
+
+	// log
+	LogSetting.FilePath = vip.GetString("log.filePath")
+	LogSetting.FileName = vip.GetString("log.fileName")
+	LogSetting.Level = vip.GetString("log.level")
+	LogSetting.Mode = vip.GetString("log.mode")
+}
+
+func GetInitConfig(vip *viper.Viper) {
+	GetParams(vip)
+	// 将日志写入文件或打印到控制台
+	logutil.InitLog(LogSetting)
+	// 初始化数据库连接
+	database.InitDB(DbSetting)
+}

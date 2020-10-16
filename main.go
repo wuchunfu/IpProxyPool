@@ -3,7 +3,7 @@ package main
 import (
 	"proxypool-go/api"
 	"proxypool-go/cmd"
-	"proxypool-go/cmd/config"
+	"proxypool-go/config"
 	"proxypool-go/run"
 	"runtime"
 )

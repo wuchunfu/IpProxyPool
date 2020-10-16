@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"proxypool-go/cmd/config"
+	"proxypool-go/cmd/server"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -13,13 +13,8 @@ var rootCmd = &cobra.Command{
 	Use:          "proxy-pool",
 	SilenceUsage: true,
 	Short:        "Main application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Example: "proxy-pool proxy-pool",
+	Long:         `Proxy-pool is an IP proxy tool implemented with golang.`,
+	Example:      "proxy-pool proxy-pool",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("requires at least 1 arg(s), only received 0")
@@ -37,7 +32,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	rootCmd.AddCommand(config.StartCmd)
+	rootCmd.AddCommand(server.StartCmd)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
