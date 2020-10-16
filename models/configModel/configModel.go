@@ -1,6 +1,5 @@
 package configModel
 
-
 type System struct {
 	AppName        string
 	HttpAddr       string
