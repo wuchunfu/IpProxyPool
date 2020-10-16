@@ -147,7 +147,6 @@ func (logFormat *LogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		line = entry.Caller.Line
 	}
 	level := strings.ToUpper(entry.Level.String())
-	//content := utils.JsonEncode(entry.Data)
 	content, _ := json.Marshal(entry.Data)
 	msg := fmt.Sprintf("%s [%s] [GOID:%d] [%s:%d] #msg:%s #content:%v\n",
 		timestamp,
