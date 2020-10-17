@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"proxypool-go/models/ipModel"
+	"proxypool-go/util/randomutil"
 	"sync"
 	"time"
 
@@ -93,7 +94,7 @@ func RandomProxy() (ip ipModel.IP) {
 		logger.Warnf("RandomProxy random count: %d\n", ipCount)
 		return ipModel.IP{}
 	}
-	randomNum := RandInt(0, ipCount)
+	randomNum := randomutil.RandInt(0, ipCount)
 	return ips[randomNum]
 }
 
@@ -109,6 +110,6 @@ func RandomByProxyType(proxyType string) (ip ipModel.IP) {
 		logger.Warnf("RandomByProxyType random count: %d\n", ipCount)
 		return ipModel.IP{}
 	}
-	randomNum := RandInt(0, ipCount)
+	randomNum := randomutil.RandInt(0, ipCount)
 	return ips[randomNum]
 }

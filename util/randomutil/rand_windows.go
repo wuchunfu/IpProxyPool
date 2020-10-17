@@ -1,4 +1,4 @@
-package storage
+package randomutil
 
 import (
 	"math/rand"
