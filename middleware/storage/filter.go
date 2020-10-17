@@ -1,52 +1,63 @@
 package storage
 
 import (
+	"net/http"
+	"net/url"
 	"proxypool-go/models/ipModel"
 	"sync"
 	"time"
 
-	sj "github.com/bitly/go-simplejson"
-	"github.com/parnurzeal/gorequest"
 	logger "github.com/sirupsen/logrus"
 )
 
 // CheckProxy .
 func CheckProxy(ip *ipModel.IP) {
-	if CheckIP(ip) {
+	if CheckIp(ip) {
 		ipModel.SaveIp(ip)
 	}
 }
 
 // CheckIP is to check the ip work or not
-func CheckIP(ip *ipModel.IP) bool {
-	var pollURL string
-	var testIP string
-	if ip.Type2 == "https" {
-		testIP = "https://" + ip.Data
-		pollURL = "https://httpbin.org/get"
+func CheckIp(ip *ipModel.IP) bool {
+	// 检测代理iP访问地址
+	var testIp string
+	var testUrl string
+	if ip.Type1 == "https" {
+		testIp = "https://" + ip.Data
+		testUrl = "https://httpbin.org/get"
 	} else {
-		testIP = "http://" + ip.Data
-		pollURL = "http://httpbin.org/get"
+		testIp = "http://" + ip.Data
+		testUrl = "http://httpbin.org/get"
 	}
-	logger.Info(testIP)
-	begin := time.Now()
-	resp, _, errs := gorequest.New().Proxy(testIP).Get(pollURL).End()
-	if errs != nil {
-		logger.Warnf("[CheckIP] testIP = %s, pollURL = %s: Error = %v", testIP, pollURL, errs)
+	// 解析代理地址
+	proxy, parseErr := url.Parse(testIp)
+	if parseErr != nil {
+		logger.Errorf("parse error: %v\n", parseErr.Error())
 		return false
 	}
-
-	defer resp.Body.Close()
-	if resp.StatusCode == 200 {
-		//harrybi 20180815 判断返回的数据格式合法性
-		_, err := sj.NewFromReader(resp.Body)
-		if err != nil {
-			logger.Warnf("[CheckIP] testIP = %s, pollURL = %s: Error = %v", testIP, pollURL, err)
-			return false
-		}
-
-		//harrybi 计算该代理的速度，单位毫秒
-		ip.Speed = time.Now().Sub(begin).Nanoseconds() / 1000 / 1000 //ms
+	//设置网络传输
+	netTransport := &http.Transport{
+		Proxy:                 http.ProxyURL(proxy),
+		MaxIdleConnsPerHost:   10,
+		ResponseHeaderTimeout: time.Second * time.Duration(10),
+	}
+	// 创建连接客户端
+	httpClient := &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: netTransport,
+	}
+	begin := time.Now() //判断代理访问时间
+	// 使用代理IP访问测试地址
+	res, err := httpClient.Get(testUrl)
+	if err != nil {
+		logger.Warnf("testIp: %s, testUrl: %s: error msg: %v", testIp, testUrl, err.Error())
+		return false
+	}
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusOK {
+		// 判断是否成功访问，如果成功访问StatusCode应该为200
+		speed := time.Now().Sub(begin).Nanoseconds() / 1000 / 1000 //ms
+		ip.Speed = speed
 		ipModel.UpdateIp(ip)
 		return true
 	}
@@ -63,7 +74,7 @@ func CheckProxyDB() {
 	for _, v := range ips {
 		wg.Add(1)
 		go func(ip ipModel.IP) {
-			if !CheckIP(&ip) {
+			if !CheckIp(&ip) {
 				ipModel.DeleteIp(&ip)
 			}
 			wg.Done()
@@ -77,15 +88,12 @@ func CheckProxyDB() {
 // RandomProxy .
 func RandomProxy() (ip ipModel.IP) {
 	ips := ipModel.GetAllIp()
-
 	ipCount := len(ips)
-	logger.Warnf("ProxyHttpsRandom ip count: %d\n", ipCount)
-
-	randomNum := RandInt(0, ipCount)
-	logger.Infof("RandomProxy random num: %d\n", randomNum)
-	if randomNum == 0 {
-		return *ipModel.NewIP()
+	if ipCount == 0 {
+		logger.Warnf("RandomProxy random count: %d\n", ipCount)
+		return ipModel.IP{}
 	}
+	randomNum := RandInt(0, ipCount)
 	return ips[randomNum]
 }
 
@@ -94,15 +102,13 @@ func RandomByProxyType(proxyType string) (ip ipModel.IP) {
 	ips, err := ipModel.GetIpByProxyType(proxyType)
 	if err != nil {
 		logger.Warn(err.Error())
-		return *ipModel.NewIP()
+		return ipModel.IP{}
 	}
 	ipCount := len(ips)
-	logger.Warnf("RandomByProxyType ip count: %d\n", ipCount)
-
-	randomNum := RandInt(0, ipCount)
-	logger.Infof("RandomByProxyType random num: %d\n", randomNum)
-	if randomNum == 0 {
-		return *ipModel.NewIP()
+	if ipCount == 0 {
+		logger.Warnf("RandomByProxyType random count: %d\n", ipCount)
+		return ipModel.IP{}
 	}
+	randomNum := RandInt(0, ipCount)
 	return ips[randomNum]
 }

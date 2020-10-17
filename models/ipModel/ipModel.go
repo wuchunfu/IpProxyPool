@@ -82,8 +82,8 @@ func GetAllIp() []IP {
 	list := make([]IP, 0)
 	err := db.Model(new(IP)).Find(&list)
 	ipCount := len(list)
-	if err.Error != nil || ipCount == 0 {
-		logger.Errorf("ip count: %d, error msg: %v\n", ipCount, err.Error)
+	if err.Error != nil {
+		logger.Warnf("ip count: %d, error msg: %v\n", ipCount, err.Error)
 		return nil
 	}
 	return list
@@ -93,8 +93,8 @@ func GetIpByProxyType(proxyType string) ([]IP, error) {
 	db := database.GetDB()
 	list := make([]IP, 0)
 	err := db.Model(new(IP)).Where("type1=?", proxyType).Find(&list)
-	if err != nil {
-		logger.Errorf("ip list: %v, error msg: %v, \n", list, err.Error)
+	if err.Error != nil {
+		logger.Errorf("error msg: %v\n", err.Error)
 		return list, err.Error
 	}
 	return list, nil
@@ -104,11 +104,14 @@ func UpdateIp(ip *IP) {
 	db := database.GetDB().Begin()
 	ipModel := ip
 	ipMap := make(map[string]interface{}, 0)
+	ipMap["speed"] = ip.Speed
 	ipMap["update_time"] = util.FormatDateTime()
-	err := db.Model(new(IP)).Where("id = ?", ipModel.ID).Updates(ipMap)
-	if err.Error != nil {
-		logger.Errorf("update ip: %s, error msg: %v", ipModel.Data, err.Error)
-		db.Rollback()
+	if ipModel.ID != 0 {
+		err := db.Model(new(IP)).Where("id = ?", ipModel.ID).Updates(ipMap)
+		if err.Error != nil {
+			logger.Errorf("update ip: %s, error msg: %v", ipModel.Data, err.Error)
+			db.Rollback()
+		}
+		db.Commit()
 	}
-	db.Commit()
 }
