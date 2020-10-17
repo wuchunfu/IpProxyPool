@@ -13,7 +13,7 @@ import (
 // CheckProxy .
 func CheckProxy(ip *ipModel.IP) {
 	if CheckIP(ip) {
-		ProxyAdd(ip)
+		ipModel.SaveIp(ip)
 	}
 }
 
@@ -47,7 +47,7 @@ func CheckIP(ip *ipModel.IP) bool {
 
 		//harrybi 计算该代理的速度，单位毫秒
 		ip.Speed = time.Now().Sub(begin).Nanoseconds() / 1000 / 1000 //ms
-		ipModel.Update(ip)
+		ipModel.UpdateIp(ip)
 		return true
 	}
 	return false
@@ -55,69 +55,54 @@ func CheckIP(ip *ipModel.IP) bool {
 
 // CheckProxyDB to check the ip in DB
 func CheckProxyDB() {
-	record := ipModel.CountIps()
+	record := ipModel.CountIp()
 	logger.Infof("Before check, DB has: %d records.", record)
-	ips := ipModel.GetAll()
+	ips := ipModel.GetAllIp()
 
 	var wg sync.WaitGroup
 	for _, v := range ips {
 		wg.Add(1)
-		go func(v ipModel.IP) {
-			if !CheckIP(&v) {
-				ProxyDel(&v)
+		go func(ip ipModel.IP) {
+			if !CheckIP(&ip) {
+				ipModel.DeleteIp(&ip)
 			}
 			wg.Done()
 		}(v)
 	}
 	wg.Wait()
-	record = ipModel.CountIps()
+	record = ipModel.CountIp()
 	logger.Infof("After check, DB has: %d records.", record)
 }
 
-// ProxyHttpRandom .
-func ProxyHttpRandom() (ip ipModel.IP) {
-	ips := ipModel.GetAll()
+// RandomProxy .
+func RandomProxy() (ip ipModel.IP) {
+	ips := ipModel.GetAllIp()
 
 	ipCount := len(ips)
 	logger.Warnf("ProxyHttpsRandom ip count: %d\n", ipCount)
 
 	randomNum := RandInt(0, ipCount)
-	logger.Infof("ProxyHttpRandom random num: %d\n", randomNum)
+	logger.Infof("RandomProxy random num: %d\n", randomNum)
 	if randomNum == 0 {
 		return *ipModel.NewIP()
 	}
 	return ips[randomNum]
 }
 
-// ProxyHttpsRandom .
-func ProxyHttpsRandom(value string) (ip ipModel.IP) {
-	ips, err := ipModel.FindAll(value)
+// RandomByProxyType .
+func RandomByProxyType(proxyType string) (ip ipModel.IP) {
+	ips, err := ipModel.FindByProxyType(proxyType)
 	if err != nil {
 		logger.Warn(err.Error())
 		return *ipModel.NewIP()
 	}
 	ipCount := len(ips)
-	logger.Warnf("ProxyHttpsRandom ip count: %d\n", ipCount)
+	logger.Warnf("RandomByProxyType ip count: %d\n", ipCount)
 
 	randomNum := RandInt(0, ipCount)
-	logger.Infof("ProxyHttpsRandom random num: %d\n", randomNum)
+	logger.Infof("RandomByProxyType random num: %d\n", randomNum)
 	if randomNum == 0 {
 		return *ipModel.NewIP()
 	}
 	return ips[randomNum]
-}
-
-// ProxyAdd .
-func ProxyAdd(ip *ipModel.IP) {
-	ipModel.InsertIps(ip)
-}
-
-// ProxyUpdate .
-func ProxyUpdate(ip *ipModel.IP) {
-	ipModel.Update(ip)
-}
-
-// ProxyDel .
-func ProxyDel(ip *ipModel.IP) {
-	ipModel.DeleteIP(ip)
 }

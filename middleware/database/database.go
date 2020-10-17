@@ -3,12 +3,13 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"github.com/sirupsen/logrus"
-	//_ "github.com/go-sql-driver/mysql"
-	"gorm.io/gorm"
+	"log"
+	"net/url"
 	"os"
 	"proxypool-go/models/configModel"
 	"strings"
@@ -18,19 +19,21 @@ import (
 var dbPingInterval = 90 * time.Second
 var DB *gorm.DB
 
-func InitDB(setting *configModel.Database) *gorm.DB {
-	//setting := new(config.Database)
-	dsn := getDbEngineDSN(setting)
-	//db, err := gorm.Open(setting.DbType, dsn)
+func GetDB() *gorm.DB {
+	return DB
+}
 
-	//newLogger := logger.New(
-	//	log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-	//	logger.Config{
-	//		SlowThreshold: time.Second, // 慢 SQL 阈值
-	//		LogLevel:      logger.Info, // Log level
-	//		Colorful:      false,       // 禁用彩色打印
-	//	},
-	//)
+func InitDB(setting *configModel.Database) *gorm.DB {
+	dsn := getDbEngineDSN(setting)
+
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second,     // 慢 SQL 阈值
+			LogLevel:      setLogLevel(""), // Log level
+			Colorful:      false,           // 禁用彩色打印
+		},
+	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
@@ -40,9 +43,8 @@ func InitDB(setting *configModel.Database) *gorm.DB {
 		PrepareStmt:            true, // 执行任何 SQL 时都创建并缓存预编译语句，可以提高后续的调用速度
 		DisableAutomaticPing:   false,
 		SkipDefaultTransaction: true, // 对于写操作（创建、更新、删除），为了确保数据的完整性，GORM 会将它们封装在事务内运行。但这会降低性能，你可以在初始化时禁用这种方式
-		Logger:                 logger.Default.LogMode(logger.Info),
-		//Logger:            newLogger,
-		AllowGlobalUpdate: false,
+		Logger:                 newLogger,
+		AllowGlobalUpdate:      false,
 	})
 	if err != nil {
 		logrus.Errorf("fail to connect database: %v\n", err)
@@ -58,23 +60,33 @@ func InitDB(setting *configModel.Database) *gorm.DB {
 	sqlDb.SetMaxIdleConns(10)
 	// 设置打开数据库连接的最大数量
 	sqlDb.SetMaxOpenConns(100)
-	//db.LogMode(true)
-	//sqlDb.LogMode(false)
 
 	// * 解决中文字符问题：Error 1366
 	db.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4")
-	go keepDbAlived(sqlDb)
+	go KeepAlivedDb(sqlDb)
 	DB = db
 	return db
 }
 
-func GetDB() *gorm.DB {
-	return DB
+func setLogLevel(logLevel string) logger.LogLevel {
+	// 设置日志级别
+	level := strings.Replace(strings.ToLower(logLevel), " ", "", -1)
+	switch level {
+	case "silent":
+		return logger.Silent
+	case "info":
+		return logger.Info
+	case "warn":
+		return logger.Warn
+	case "error":
+		return logger.Error
+	default:
+		return logger.Silent
+	}
 }
 
 // 获取数据库引擎DSN  mysql,postgres
 func getDbEngineDSN(setting *configModel.Database) string {
-	//setting := new(config.Database)
 	engine := strings.ToLower(setting.DbType)
 	dsn := ""
 	switch engine {
@@ -83,9 +95,9 @@ func getDbEngineDSN(setting *configModel.Database) string {
 		// loc: 设置时间的位置
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&allowNativePasswords=true&parseTime=True&loc=Local",
 			// 连接数据库的用户名
-			setting.Username,
+			url.QueryEscape(setting.Username),
 			// 连接数据库的密码
-			setting.Password,
+			url.QueryEscape(setting.Password),
 			// 连接数据库的地址
 			setting.Host,
 			// 连接数据库的端口号
@@ -95,19 +107,21 @@ func getDbEngineDSN(setting *configModel.Database) string {
 			// 连接数据库的编码格式
 			setting.Charset)
 	case "postgres":
-		dsn = fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=disable TimeZone=Asia/Shanghai",
+		dsn = fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=%s TimeZone=%s",
+			// 连接数据库的地址
 			setting.Host,
+			// 连接数据库的端口号
 			setting.Port,
+			// 连接数据库的具体数据库名称
 			setting.DbName,
-			setting.Username,
-			setting.Password)
-	//dsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%ssslmode=%s",
-	//	url.QueryEscape(setting.Username),
-	//	url.QueryEscape(setting.Password),
-	//	setting.Host,
-	//	setting.Port,
-	//	setting.DbName,
-	//	setting.SslMode)
+			// 连接数据库的用户名
+			url.QueryEscape(setting.Username),
+			// 连接数据库的密码
+			url.QueryEscape(setting.Password),
+			// SSL mode
+			setting.SslMode,
+			// 时区
+			setting.TimeZone)
 	default:
 		return fmt.Sprintf("Unknown database type: %s", setting.DbType)
 	}
@@ -143,14 +157,14 @@ func parseMSSQLHostPort(info string) (string, string) {
 	return host, port
 }
 
-func keepDbAlived(engine *sql.DB) {
+func KeepAlivedDb(engine *sql.DB) {
 	t := time.Tick(dbPingInterval)
 	var err error
 	for {
 		<-t
 		err = engine.Ping()
 		if err != nil {
-			logrus.Infof("database ping: %s\n", err)
+			logrus.Errorf("database ping error: %v\n", err.Error())
 		}
 	}
 }

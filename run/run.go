@@ -29,7 +29,7 @@ func Task() {
 
 	// Start getters to scraper IP and put it in channel
 	for {
-		nums := ipModel.CountIps()
+		nums := ipModel.CountIp()
 		logger.Printf("Chan: %v, IP: %d\n", len(ipChan), nums)
 		if len(ipChan) < 100 {
 			go run(ipChan)

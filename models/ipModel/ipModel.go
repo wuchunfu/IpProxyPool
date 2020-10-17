@@ -28,111 +28,87 @@ func NewIP() *IP {
 }
 
 //InsertIps SaveIps save ips info to database
-func InsertIps(ip *IP) {
+func SaveIp(ip *IP) {
 	db := database.GetDB().Begin()
-	err := db.Model(new(IP)).Create(ip)
-	if err.Error != nil {
-		logger.Error(err.Error)
-		db.Rollback()
+	ipModel := GetOneIp(ip.Data)
+	if ipModel.Data == "" {
+		err := db.Model(new(IP)).Create(ip)
+		if err.Error != nil {
+			logger.Errorf("save ip: %s, error msg: %v", ip.Data, err.Error)
+			db.Rollback()
+		}
+	} else {
+		UpdateIp(ipModel)
 	}
 	db.Commit()
 }
 
-func CountIps() int64 {
+func CountIp() int64 {
 	db := database.GetDB()
 	var count int64
-	// set id >= 0, fix bug: when this is nothing in the database
-	err := db.Model(new(IP)).Where("id >= ?", 0).Count(&count)
-	//err := db.Model(new(IP)).Count(&count)
+	err := db.Model(new(IP)).Count(&count)
 	if err.Error != nil {
-		logger.Error(err.Error.Error())
+		logger.Errorf("ip count: %d, error msg: %v", count, err.Error)
 		return -1
 	}
 	return count
 }
 
-func DeleteIP(ip *IP) {
+func DeleteIp(ip *IP) {
 	db := database.GetDB().Begin()
-	err := db.Model(new(IP)).Delete(ip)
+	ipModel := ip
+	err := db.Model(new(IP)).Delete(ipModel)
 	if err.Error != nil {
+		logger.Errorf("delete ip: %s, error msg: %v", ipModel.Data, err.Error)
 		db.Rollback()
-		logger.Error(err.Error)
 	}
 	db.Commit()
 }
 
-func GetOne(ipStr string) *IP {
+func GetOneIp(ipStr string) *IP {
 	db := database.GetDB()
+	ipModel := new(IP)
 	//只获取第一条记录
-	err := db.Model(new(IP)).Where("data = ?", ipStr).Find(new(IP))
+	err := db.Model(new(IP)).Where("data = ?", ipStr).Find(ipModel)
 	if err.Error != nil {
-		logger.Error(err.Error)
+		logger.Errorf("get ip: %s, error msg: %v", ipModel.Data, err.Error)
 		return nil
 	}
-	return new(IP)
+	return ipModel
 }
 
-func GetAll() []IP {
+func GetAllIp() []IP {
 	db := database.GetDB()
 	list := make([]IP, 0)
 	err := db.Model(new(IP)).Find(&list)
 	ipCount := len(list)
 	if err.Error != nil || ipCount == 0 {
-		logger.Warnf("error msg: %v, ip count: %d\n", err.Error, ipCount)
+		logger.Errorf("ip count: %d, error msg: %v\n", ipCount, err.Error)
 		return nil
 	}
 	return list
 }
 
-//Test if have https proxy in database
-//just test on MySQL/Mariadb database
-// dbName: ProxyPool
-// dbTableName: ip
-// select distinct if(exists(select * from ProxyPool.ip where type1='https'),1,0) as a from ProxyPool.ip;
-func TestHttps() bool {
-	db := database.GetDB()
-	err := db.Model(new(IP)).Where(&IP{Type1: "https"}).Find(new(IP))
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-func FindAll(value string) ([]IP, error) {
+func FindByProxyType(proxyType string) ([]IP, error) {
 	db := database.GetDB()
 	list := make([]IP, 0)
-
-	switch value {
-	case "http":
-		err := db.Model(new(IP)).Where("type1=?", "http").Find(&list)
-		if err != nil {
-			return list, err.Error
-		}
-	case "https":
-		//test has https proxy on databases or not
-		HasHttps := TestHttps()
-		if HasHttps == false {
-			return list, nil
-		}
-		err := db.Model(new(IP)).Where("type1=?", "https").Find(&list)
-		if err != nil {
-			return list, err.Error
-		}
-	default:
-		return list, nil
+	err := db.Model(new(IP)).Where("type1=?", proxyType).Find(&list)
+	if err != nil {
+		logger.Errorf("ip list: %v, error msg: %v, \n", list, err.Error)
+		return list, err.Error
 	}
-
 	return list, nil
 }
 
-func Update(ip *IP) {
+func UpdateIp(ip *IP) {
 	db := database.GetDB().Begin()
 	ipModel := ip
-	ipModel.UpdateTime = util.FormatDateTime()
-	err := db.Model(new(IP)).Where("id = ?", 1).Updates(ipModel)
+	ipMap := make(map[string]interface{}, 0)
+	ipMap["update_time"] = util.FormatDateTime()
+	err := db.Model(new(IP)).Where("id = ?", ipModel.ID).Updates(ipMap)
 	if err.Error != nil {
+		logger.Errorf("update ip: %s, error msg: %v", ipModel.Data, err.Error)
 		db.Rollback()
-		logger.Errorf("[CheckIP] Update IP = %v Error = %v", *ip, err.Error)
 	}
 	db.Commit()
 }

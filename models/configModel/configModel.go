@@ -18,8 +18,9 @@ type Database struct {
 	Charset      string
 	MaxIdleConns int
 	MaxOpenConns int
+	Level        string
 	SslMode      string
-	Path         string
+	TimeZone     string
 }
 
 type Log struct {

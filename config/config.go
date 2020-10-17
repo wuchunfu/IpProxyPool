@@ -78,8 +78,9 @@ func GetParams(vip *viper.Viper) {
 	DbSetting.Charset = vip.GetString("database.charset")
 	DbSetting.MaxIdleConns = vip.GetInt("database.maxIdleConns")
 	DbSetting.MaxOpenConns = vip.GetInt("database.maxOpenConns")
+	DbSetting.Level = vip.GetString("database.level")
 	DbSetting.SslMode = vip.GetString("database.sslMode")
-	DbSetting.Path = vip.GetString("database.path")
+	DbSetting.TimeZone = vip.GetString("database.timeZone")
 
 	// log
 	LogSetting.FilePath = vip.GetString("log.filePath")

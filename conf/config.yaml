@@ -22,16 +22,18 @@ database:
   parseTime: true
   maxIdleConns: 5
   maxOpenConns: 100
-  # For "postgres" only, either "disable", "require" or "verify-full"
+  # Either "silent", "info", "warn", "error", default is "silent"
+  level: silent
+  # For "postgres" only, either "disable", "require" or "verify-full", default is "disable"
   sslMode: disable
-  # For "sqlite3" and "tidb", use absolute path when you start as service
-  path: data/ProxyPool.db
+  # For "postgres" only, either "Asia/Shanghai", default is "Asia/Shanghai"
+  timeZone: Asia/Shanghai
 
 # logger configuration
 log:
   filePath: logs
   fileName: run.log
-  # Either "Trace", "Info", "Warn", "Error", "Fatal", default is "Trace"
+  # Either "info", "warn", "error", "debug", default is "info"
   level: debug
   # Can be "console" and "file", default is "console"
   # Use comma to separate multiple modes, e.g. "console, file"

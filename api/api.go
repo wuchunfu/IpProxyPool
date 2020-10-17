@@ -16,6 +16,7 @@ import (
 func Run(setting *configModel.System) {
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/all", ProxyAllHandler)
 	mux.HandleFunc("/http", ProxyHttpHandler)
 	mux.HandleFunc("/https", ProxyHttpsHandler)
 
@@ -49,11 +50,23 @@ func Run(setting *configModel.System) {
 	logger.Println("Server exiting")
 }
 
+// ProxyAllHandler .
+func ProxyAllHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		w.Header().Set("content-type", "application/json")
+		b, err := json.Marshal(storage.RandomProxy())
+		if err != nil {
+			return
+		}
+		w.Write(b)
+	}
+}
+
 // ProxyHttpHandler .
 func ProxyHttpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Header().Set("content-type", "application/json")
-		b, err := json.Marshal(storage.ProxyHttpRandom())
+		b, err := json.Marshal(storage.RandomByProxyType("http"))
 		if err != nil {
 			return
 		}
@@ -65,7 +78,7 @@ func ProxyHttpHandler(w http.ResponseWriter, r *http.Request) {
 func ProxyHttpsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		w.Header().Set("content-type", "application/json")
-		b, err := json.Marshal(storage.ProxyHttpsRandom("https"))
+		b, err := json.Marshal(storage.RandomByProxyType("https"))
 		if err != nil {
 			return
 		}

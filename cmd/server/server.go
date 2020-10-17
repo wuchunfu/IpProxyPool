@@ -53,10 +53,9 @@ func init() {
 	config.Vip.SetDefault("database.charset", "utf8mb4")
 	config.Vip.SetDefault("database.maxIdleConns", 5)
 	config.Vip.SetDefault("database.maxOpenConns", 100)
-	// For "postgres" only, either "disable", "require" or "verify-full"
+	config.Vip.SetDefault("database.level", "silent")
 	config.Vip.SetDefault("database.sslMode", "disable")
-	// For "sqlite3" and "tidb", use absolute path when you start as service
-	config.Vip.SetDefault("database.path", "data/ProxyPool.db")
+	config.Vip.SetDefault("database.timeZone", "Asia/Shanghai")
 
 	config.Vip.SetDefault("log.filePath", "logs")
 	config.Vip.SetDefault("log.fileName", "run.log")
