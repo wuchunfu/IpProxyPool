@@ -91,7 +91,7 @@ func RandomProxy() (ip ipModel.IP) {
 
 // RandomByProxyType .
 func RandomByProxyType(proxyType string) (ip ipModel.IP) {
-	ips, err := ipModel.FindByProxyType(proxyType)
+	ips, err := ipModel.GetIpByProxyType(proxyType)
 	if err != nil {
 		logger.Warn(err.Error())
 		return *ipModel.NewIP()

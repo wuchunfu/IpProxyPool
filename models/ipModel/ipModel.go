@@ -89,7 +89,7 @@ func GetAllIp() []IP {
 	return list
 }
 
-func FindByProxyType(proxyType string) ([]IP, error) {
+func GetIpByProxyType(proxyType string) ([]IP, error) {
 	db := database.GetDB()
 	list := make([]IP, 0)
 	err := db.Model(new(IP)).Where("type1=?", proxyType).Find(&list)
