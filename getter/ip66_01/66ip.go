@@ -25,7 +25,7 @@ func Fetch(url string) *goquery.Document {
 	defer resp.Body.Close()
 	res, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
 	if err != nil {
-		logrus.Error("Http status codess:", err)
+		logrus.Error("Http status code:", err)
 	}
 	doc, err := goquery.NewDocumentFromReader(res)
 	if err != nil {

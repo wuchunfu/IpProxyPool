@@ -2,8 +2,9 @@ package run
 
 import (
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/getter/ip66"
-	"proxypool-go/getter/ip89"
+	"proxypool-go/middleware/fetcher/ip3366"
+	"proxypool-go/middleware/fetcher/ip66"
+	"proxypool-go/middleware/fetcher/ip89"
 	"proxypool-go/middleware/storage"
 	"proxypool-go/models/ipModel"
 	"sync"
@@ -41,13 +42,12 @@ func Task() {
 func run(ipChan chan<- *ipModel.IP) {
 	var wg sync.WaitGroup
 	siteFuncList := []func() []*ipModel.IP{
-		//ip66_01.IP66,
-		ip66.IP66, //need to remove it
-		//ip3366.IP3306,
-		//kuaidaili.KDL,
-		//proxylistplus.PLP, //need to remove it
-		//proxylistplus.PLPSSL,
-		ip89.IP89,
+		ip66.Ip66,
+		ip89.Ip89,
+		ip3366.Ip33661,
+		//kuaidaili.KuaiDaiLiInha,
+		//kuaidaili.KuaiDaiLiIntr,
+		//proxylistplus.ProxyListPlus,
 	}
 	for _, siteFunc := range siteFuncList {
 		wg.Add(1)

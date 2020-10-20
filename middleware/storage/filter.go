@@ -1,6 +1,10 @@
 package storage
 
 import (
+	"crypto/tls"
+	"fmt"
+	"golang.org/x/net/http2"
+	"net"
 	"net/http"
 	"net/url"
 	"proxypool-go/models/ipModel"
@@ -23,11 +27,11 @@ func CheckIp(ip *ipModel.IP) bool {
 	// 检测代理iP访问地址
 	var testIp string
 	var testUrl string
-	if ip.Type1 == "https" {
-		testIp = "https://" + ip.Data
+	if ip.ProxyType == "https" {
+		testIp = fmt.Sprintf("https://%s:%d", ip.ProxyHost, ip.ProxyPort)
 		testUrl = "https://httpbin.org/get"
 	} else {
-		testIp = "http://" + ip.Data
+		testIp = fmt.Sprintf("http://%s:%d", ip.ProxyHost, ip.ProxyPort)
 		testUrl = "http://httpbin.org/get"
 	}
 	// 解析代理地址
@@ -36,15 +40,30 @@ func CheckIp(ip *ipModel.IP) bool {
 		logger.Errorf("parse error: %v\n", parseErr.Error())
 		return false
 	}
+	dialer := &net.Dialer{
+		// 限制创建一个TCP连接使用的时间（如果需要一个新的链接）
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
 	//设置网络传输
 	netTransport := &http.Transport{
+		DialContext:           dialer.DialContext,
 		Proxy:                 http.ProxyURL(proxy),
-		MaxIdleConnsPerHost:   10,
+		// true为代表开启长连接
+		DisableKeepAlives:     true,
+		MaxConnsPerHost:       20,
+		// 是长连接在关闭之前，连接池对所有host的最大链接数量
+		MaxIdleConns: 20,
+		// 连接池对每个host的最大链接数量(MaxIdleConnsPerHost <= MaxIdleConns,如果客户端只需要访问一个host，那么最好将MaxIdleConnsPerHost与MaxIdleConns设置为相同，这样逻辑更加清晰)
+		MaxIdleConnsPerHost:   20,
+		// 连接最大空闲时间，超过这个时间就会被关闭
+		IdleConnTimeout:       20 * time.Second,
 		ResponseHeaderTimeout: time.Second * time.Duration(10),
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 	}
+	_ = http2.ConfigureTransport(netTransport)
 	// 创建连接客户端
 	httpClient := &http.Client{
-		Timeout:   time.Second * 10,
 		Transport: netTransport,
 	}
 	begin := time.Now() //判断代理访问时间
@@ -54,11 +73,12 @@ func CheckIp(ip *ipModel.IP) bool {
 		logger.Warnf("testIp: %s, testUrl: %s: error msg: %v", testIp, testUrl, err.Error())
 		return false
 	}
+
 	defer res.Body.Close()
 	if res.StatusCode == http.StatusOK {
 		// 判断是否成功访问，如果成功访问StatusCode应该为200
 		speed := time.Now().Sub(begin).Nanoseconds() / 1000 / 1000 //ms
-		ip.Speed = speed
+		ip.ProxySpeed = int(speed)
 		ipModel.UpdateIp(ip)
 		return true
 	}
@@ -84,6 +104,17 @@ func CheckProxyDB() {
 	wg.Wait()
 	record = ipModel.CountIp()
 	logger.Infof("After check, DB has: %d records.", record)
+}
+
+// AllProxy .
+func AllProxy() []ipModel.IP {
+	ips := ipModel.GetAllIp()
+	ipCount := len(ips)
+	if ipCount == 0 {
+		logger.Warnf("RandomProxy random count: %d\n", ipCount)
+		return []ipModel.IP{}
+	}
+	return ips
 }
 
 // RandomProxy .

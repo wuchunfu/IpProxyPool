@@ -16,6 +16,7 @@ import (
 func Run(setting *configModel.System) {
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", IndexHandler)
 	mux.HandleFunc("/all", ProxyAllHandler)
 	mux.HandleFunc("/http", ProxyHttpHandler)
 	mux.HandleFunc("/https", ProxyHttpsHandler)
@@ -48,6 +49,23 @@ func Run(setting *configModel.System) {
 	}
 
 	logger.Println("Server exiting")
+}
+
+// IndexHandler .
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		w.Header().Set("content-type", "application/json")
+		apiMap := make(map[string]string, 0)
+		apiMap["/"] = "api 指引"
+		apiMap["/all"] = "获取随机的一个 http 或 https 类型的代理IP"
+		apiMap["/http"] = "获取随机的一个 http 类型的代理IP"
+		apiMap["/https"] = "获取随机的一个 https 类型的代理IP"
+		b, err := json.Marshal(apiMap)
+		if err != nil {
+			return
+		}
+		w.Write(b)
+	}
 }
 
 // ProxyAllHandler .
