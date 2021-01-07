@@ -29,10 +29,10 @@ func CheckIp(ip *ipModel.IP) bool {
 	var testUrl string
 	if ip.ProxyType == "https" {
 		testIp = fmt.Sprintf("https://%s:%d", ip.ProxyHost, ip.ProxyPort)
-		testUrl = "https://httpbin.org/get"
+		testUrl = "https://ip138.com"
 	} else {
 		testIp = fmt.Sprintf("http://%s:%d", ip.ProxyHost, ip.ProxyPort)
-		testUrl = "http://httpbin.org/get"
+		testUrl = "http://ip138.com"
 	}
 	// 解析代理地址
 	proxy, parseErr := url.Parse(testIp)
@@ -47,15 +47,15 @@ func CheckIp(ip *ipModel.IP) bool {
 	}
 	//设置网络传输
 	netTransport := &http.Transport{
-		DialContext:           dialer.DialContext,
-		Proxy:                 http.ProxyURL(proxy),
+		DialContext: dialer.DialContext,
+		Proxy:       http.ProxyURL(proxy),
 		// true为代表开启长连接
-		DisableKeepAlives:     true,
-		MaxConnsPerHost:       20,
+		DisableKeepAlives: true,
+		MaxConnsPerHost:   20,
 		// 是长连接在关闭之前，连接池对所有host的最大链接数量
 		MaxIdleConns: 20,
 		// 连接池对每个host的最大链接数量(MaxIdleConnsPerHost <= MaxIdleConns,如果客户端只需要访问一个host，那么最好将MaxIdleConnsPerHost与MaxIdleConns设置为相同，这样逻辑更加清晰)
-		MaxIdleConnsPerHost:   20,
+		MaxIdleConnsPerHost: 20,
 		// 连接最大空闲时间，超过这个时间就会被关闭
 		IdleConnTimeout:       20 * time.Second,
 		ResponseHeaderTimeout: time.Second * time.Duration(10),
