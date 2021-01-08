@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/wuchunfu/IpProxyPool/models/configModel"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -11,7 +12,6 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"proxypool-go/models/configModel"
 	"strings"
 	"time"
 )

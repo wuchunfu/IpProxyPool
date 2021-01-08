@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/fetcher"
-	"proxypool-go/models/ipModel"
-	"proxypool-go/util"
+	"github.com/wuchunfu/IpProxyPool/fetcher"
+	"github.com/wuchunfu/IpProxyPool/models/ipModel"
+	"github.com/wuchunfu/IpProxyPool/util"
 	"strconv"
 	"strings"
 )

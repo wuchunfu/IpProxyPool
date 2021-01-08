@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/sirupsen/logrus"
+	"github.com/wuchunfu/IpProxyPool/util/headerutil"
 	"golang.org/x/net/html/charset"
 	"golang.org/x/net/publicsuffix"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
-	"proxypool-go/util/headerutil"
 	"time"
 )
 

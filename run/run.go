@@ -2,11 +2,11 @@ package run
 
 import (
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/fetcher/ip3366"
-	"proxypool-go/fetcher/ip66"
-	"proxypool-go/fetcher/ip89"
-	"proxypool-go/middleware/storage"
-	"proxypool-go/models/ipModel"
+	"github.com/wuchunfu/IpProxyPool/fetcher/ip3366"
+	"github.com/wuchunfu/IpProxyPool/fetcher/ip66"
+	"github.com/wuchunfu/IpProxyPool/fetcher/ip89"
+	"github.com/wuchunfu/IpProxyPool/middleware/storage"
+	"github.com/wuchunfu/IpProxyPool/models/ipModel"
 	"sync"
 	"time"
 )

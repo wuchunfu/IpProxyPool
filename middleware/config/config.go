@@ -6,11 +6,11 @@ import (
 	"github.com/mitchellh/go-homedir"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/wuchunfu/IpProxyPool/middleware/database"
+	"github.com/wuchunfu/IpProxyPool/middleware/logutil"
+	"github.com/wuchunfu/IpProxyPool/models/configModel"
+	"github.com/wuchunfu/IpProxyPool/util/fileutil"
 	"os"
-	"proxypool-go/middleware/database"
-	"proxypool-go/middleware/logutil"
-	"proxypool-go/models/configModel"
-	"proxypool-go/util/fileutil"
 )
 
 var (

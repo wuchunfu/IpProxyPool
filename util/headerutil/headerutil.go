@@ -1,7 +1,7 @@
 package headerutil
 
 import (
-	"proxypool-go/util/randomutil"
+	"github.com/wuchunfu/IpProxyPool/util/randomutil"
 )
 
 var userAgentList = [...]string{

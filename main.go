@@ -1,10 +1,10 @@
 package main
 
 import (
-	"proxypool-go/api"
-	"proxypool-go/cmd"
-	"proxypool-go/middleware/config"
-	"proxypool-go/run"
+	"github.com/wuchunfu/IpProxyPool/api"
+	"github.com/wuchunfu/IpProxyPool/cmd"
+	"github.com/wuchunfu/IpProxyPool/middleware/config"
+	"github.com/wuchunfu/IpProxyPool/run"
 	"runtime"
 )
 

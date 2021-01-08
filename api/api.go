@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	logger "github.com/sirupsen/logrus"
+	"github.com/wuchunfu/IpProxyPool/middleware/storage"
+	"github.com/wuchunfu/IpProxyPool/models/configModel"
+	"github.com/wuchunfu/IpProxyPool/util/iputil"
 	"net/http"
-	"proxypool-go/middleware/storage"
-	"proxypool-go/models/configModel"
-	"proxypool-go/util/iputil"
 	"time"
 )
 

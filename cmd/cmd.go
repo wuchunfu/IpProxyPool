@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/wuchunfu/IpProxyPool/cmd/server"
 	"os"
-	"proxypool-go/cmd/server"
 )
 
 // rootCmd represents the base command when called without any subcommands
