@@ -2,9 +2,9 @@ package run
 
 import (
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/middleware/fetcher/ip3366"
-	"proxypool-go/middleware/fetcher/ip66"
-	"proxypool-go/middleware/fetcher/ip89"
+	"proxypool-go/fetcher/ip3366"
+	"proxypool-go/fetcher/ip66"
+	"proxypool-go/fetcher/ip89"
 	"proxypool-go/middleware/storage"
 	"proxypool-go/models/ipModel"
 	"sync"
@@ -45,6 +45,7 @@ func run(ipChan chan<- *ipModel.IP) {
 		ip66.Ip66,
 		ip89.Ip89,
 		ip3366.Ip33661,
+		ip3366.Ip33662,
 		//kuaidaili.KuaiDaiLiInha,
 		//kuaidaili.KuaiDaiLiIntr,
 		//proxylistplus.ProxyListPlus,

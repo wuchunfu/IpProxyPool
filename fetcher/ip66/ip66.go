@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/middleware/fetcher"
+	"proxypool-go/fetcher"
 	"proxypool-go/models/ipModel"
 	"proxypool-go/util"
 	"strconv"

@@ -1,10 +1,10 @@
-package ip3366
+package kuaidaili
 
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	logger "github.com/sirupsen/logrus"
-	"proxypool-go/middleware/fetcher"
+	"proxypool-go/fetcher"
 	"proxypool-go/models/ipModel"
 	"proxypool-go/util"
 	"strconv"
@@ -12,26 +12,26 @@ import (
 )
 
 // 国内高匿代理
-func Ip33661() []*ipModel.IP {
-	return Ip3366(1)
+func KuaiDaiLiInha() []*ipModel.IP {
+	return KuaiDaiLi("inha")
 }
 
 // 国内普通代理
-func Ip33662() []*ipModel.IP {
-	return Ip3366(2)
+func KuaiDaiLiIntr() []*ipModel.IP {
+	return KuaiDaiLi("intr")
 }
 
-func Ip3366(proxyType int) []*ipModel.IP {
-	logger.Info("[ip3366] fetch start")
+func KuaiDaiLi(proxyType string) []*ipModel.IP {
+	logger.Info("[kuaidaili] fetch start")
 
 	list := make([]*ipModel.IP, 0)
 
-	indexUrl := "http://www.ip3366.net/free"
+	indexUrl := "https://www.kuaidaili.com/free"
 	fetchIndex := fetcher.Fetch(indexUrl)
-	pageNum := fetchIndex.Find("#listnav > ul > a:nth-child(8)").Text()
+	pageNum := fetchIndex.Find("#listnav > ul > li:nth-child(9) > a").Text()
 	num, _ := strconv.Atoi(pageNum)
 	for i := 1; i <= num; i++ {
-		url := fmt.Sprintf("%s/?stype=%d&page=%d", indexUrl, proxyType, i)
+		url := fmt.Sprintf("%s/%s/%d", indexUrl, proxyType, i)
 		fetch := fetcher.Fetch(url)
 		fetch.Find("table > tbody").Each(func(i int, selection *goquery.Selection) {
 			selection.Find("tr").Each(func(i int, selection *goquery.Selection) {
@@ -47,13 +47,13 @@ func Ip3366(proxyType int) []*ipModel.IP {
 				ip.ProxyType = proxyType
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed, _ = strconv.Atoi(proxySpeed)
-				ip.ProxySource = "http://www.ip3366.net"
+				ip.ProxySource = "https://www.kuaidaili.com"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)
 			})
 		})
 	}
-	logger.Info("[ip3366] fetch done")
+	logger.Info("[kuaidaili] fetch done")
 	return list
 }
