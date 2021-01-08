@@ -1,4 +1,4 @@
-module proxypool-go
+module github.com/wuchunfu/IpProxyPool
 
 go 1.15
 
