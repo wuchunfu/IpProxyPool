@@ -35,6 +35,7 @@ func Ip89() []*ipModel.IP {
 				ip.ProxyType = "http"
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed = 100
+				ip.ProxySource = "https://www.89ip.cn"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)

@@ -14,6 +14,7 @@ type IP struct {
 	ProxyType     string `gorm:"type:varchar(64); not null" json:"proxyType"`
 	ProxyLocation string `gorm:"type:varchar(255); default null" json:"proxyLocation"`
 	ProxySpeed    int    `gorm:"type:int(20); not null; default 0" json:"proxySpeed"`
+	ProxySource   string `gorm:"type:varchar(64); not null;" json:"proxySource"`
 	CreateTime    string `gorm:"type:varchar(50); not null" json:"-"`
 	UpdateTime    string `gorm:"type:varchar(50); default ''" json:"updateTime"`
 }

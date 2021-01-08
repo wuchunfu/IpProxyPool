@@ -29,10 +29,10 @@ func CheckIp(ip *ipModel.IP) bool {
 	var testUrl string
 	if ip.ProxyType == "https" {
 		testIp = fmt.Sprintf("https://%s:%d", ip.ProxyHost, ip.ProxyPort)
-		testUrl = "https://ip138.com"
+		testUrl = "https://httpbin.org/get"
 	} else {
 		testIp = fmt.Sprintf("http://%s:%d", ip.ProxyHost, ip.ProxyPort)
-		testUrl = "http://ip138.com"
+		testUrl = "http://httpbin.org/get"
 	}
 	// 解析代理地址
 	proxy, parseErr := url.Parse(testIp)

@@ -32,6 +32,7 @@ func ProxyListPlus() []*ipModel.IP {
 				ip.ProxyType = "http"
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed = 100
+				ip.ProxySource = "https://list.proxylistplus.com"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)

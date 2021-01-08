@@ -26,18 +26,13 @@ func Fetch(url string) *goquery.Document {
 	}
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	req.Header.Set("Proxy-Switch-Ip", "yes")
-	req.Header.Set("Referer", "https://www.baidu.com")
-	//req.Header.Set("Referrer Policy", "strict-origin-when-cross-origin")
 	req.Header.Set("User-Agent", headerutil.RandomUserAgent())
+	req.Header.Set("Access-Control-Allow-Origin", "*")
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.")
-	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Set("Accept-language", "zh-CN,zh;q=0.9,en;q=0.8")
+	//req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept-language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2")
 	req.Header.Set("Connection", "keep-alive")
-	//req.Header.Set("Content-Length", "25")
 	req.Header.Set("Content-Type", "text/html; charset=UTF-8")
-	//req.Header.Set("X-Anit-Forge-Code", "0")
-	//req.Header.Set("X-Anit-Forge-Token", "None")
-	//req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	resp, err := client.Do(req)
 	if resp != nil {

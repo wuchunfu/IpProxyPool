@@ -47,6 +47,7 @@ func KuaiDaiLi(proxyType string) []*ipModel.IP {
 				ip.ProxyType = proxyType
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed, _ = strconv.Atoi(proxySpeed)
+				ip.ProxySource = "https://www.kuaidaili.com"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)

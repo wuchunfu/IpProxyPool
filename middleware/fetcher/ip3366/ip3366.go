@@ -12,12 +12,12 @@ import (
 )
 
 // 国内高匿代理
-func Ip33661() []*ipModel.IP{
+func Ip33661() []*ipModel.IP {
 	return Ip3366(1)
 }
 
 // 国内普通代理
-func Ip33662() []*ipModel.IP{
+func Ip33662() []*ipModel.IP {
 	return Ip3366(2)
 }
 
@@ -47,6 +47,7 @@ func Ip3366(proxyType int) []*ipModel.IP {
 				ip.ProxyType = proxyType
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed, _ = strconv.Atoi(proxySpeed)
+				ip.ProxySource = "http://www.ip3366.net"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)

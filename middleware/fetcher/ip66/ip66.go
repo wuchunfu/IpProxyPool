@@ -17,10 +17,12 @@ func Ip66() []*ipModel.IP {
 	list := make([]*ipModel.IP, 0)
 
 	indexUrl := "http://www.66ip.cn"
-	fetchIndex := fetcher.Fetch(indexUrl)
-	pageNum := fetchIndex.Find("#PageList > a:nth-child(12)").Text()
-	num, _ := strconv.Atoi(pageNum)
-	for i := 1; i <= num; i++ {
+	//fetchIndex := fetcher.Fetch(indexUrl)
+	//pageNum := fetchIndex.Find("#PageList > a:nth-child(12)").Text()
+	//num, _ := strconv.Atoi(pageNum)
+	//fmt.Println("=====")
+	//fmt.Println(num)
+	for i := 1; i <= 100; i++ {
 		url := fmt.Sprintf("%s/%d.html", indexUrl, i)
 		fetch := fetcher.Fetch(url)
 		fetch.Find("table > tbody").Each(func(i int, selection *goquery.Selection) {
@@ -35,6 +37,7 @@ func Ip66() []*ipModel.IP {
 				ip.ProxyType = "http"
 				ip.ProxyLocation = proxyLocation
 				ip.ProxySpeed = 100
+				ip.ProxySource = "http://www.66ip.cn"
 				ip.CreateTime = util.FormatDateTime()
 				ip.UpdateTime = util.FormatDateTime()
 				list = append(list, ip)
