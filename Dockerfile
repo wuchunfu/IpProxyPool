@@ -22,7 +22,7 @@ RUN xz -d -c /usr/local/upx-3.96-amd64_linux.tar.xz | \
 RUN set -eux \
     && go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
-    && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o IpProxyPool . \
+    && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags '-w -s' -a -installsuffix cgo -o IpProxyPool . \
     && upx IpProxyPool
 
 FROM alpine:3.12
