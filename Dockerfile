@@ -14,10 +14,16 @@ WORKDIR /app
 
 COPY . .
 
+ADD https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz /usr/local
+RUN xz -d -c /usr/local/upx-3.96-amd64_linux.tar.xz | \
+    tar -xOf - upx-3.96-amd64_linux/upx > /bin/upx \
+    && chmod a+x /bin/upx
+
 RUN set -eux \
     && go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
-    && go build -o IpProxyPool .
+    && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o IpProxyPool . \
+    && upx IpProxyPool
 
 FROM alpine:3.12
 
