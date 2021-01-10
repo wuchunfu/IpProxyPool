@@ -44,6 +44,8 @@
 
 ## 安装及使用
 
+### 源码安装
+
 ```shell
 # 克隆项目
 git clone https://github.com/wuchunfu/IpProxyPool.git
@@ -70,7 +72,30 @@ chmod +x IpProxyPool
 
 # 运行
 ./IpProxyPool proxy-pool
+```
 
+### Docker 安装
+
+> `Docker` 请自行安装，安装完 `docker` 后查看是否安装 `docker-compose`
+> 执行这个命令查看是否成功安装 `docker-compose`, `docker-compose -version`
+
+```shell
+# 克隆项目
+git clone https://github.com/wuchunfu/IpProxyPool.git
+
+# 进入项目目录
+cd IpProxyPool
+
+# 执行以下命令启动
+docker-compose -f docker-compose.yaml up -d
+
+# 执行以下命令停止
+docker-compose -f docker-compose.yaml down
+```
+
+## 访问
+
+```shell
 # web 访问
 http://127.0.0.1:3000
 
@@ -84,7 +109,6 @@ curl http://127.0.0.1:3000/http
 # 随机输出HTTPS代理
 curl http://127.0.0.1:3000/https
 ```
-
 ## 诚挚的感谢
 
 - 首先感谢您的使用，如果觉得程序还不错也能帮助您解决实际问题，不妨添个赞以鼓励本人继续努力，谢谢！
