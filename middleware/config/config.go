@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	"github.com/mitchellh/go-homedir"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/wuchunfu/IpProxyPool/middleware/database"
@@ -14,18 +13,16 @@ import (
 )
 
 var (
-	Vip           = viper.New()
-	ConfigFile    = ""
-	SystemSetting = new(configModel.System)
-	DbSetting     = new(configModel.Database)
-	LogSetting    = new(configModel.Log)
+	Vip         = viper.New()
+	ConfigFile  = ""
+	YamlSetting = new(configModel.YamlSetting)
 )
 
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig() {
 	if ConfigFile != "" {
 		if !fileutil.PathExists(ConfigFile) {
-			logger.Errorf("no such file or directory: %s", ConfigFile)
+			logger.Errorf("No such file or directory: %s", ConfigFile)
 			os.Exit(-1)
 		} else {
 			// Use config file from the flag.
@@ -33,22 +30,12 @@ func InitConfig() {
 			Vip.SetConfigType("yaml")
 		}
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			logger.Errorf("no such file or directory: %s", ConfigFile)
-			os.Exit(-1)
-		}
-
-		// Search config in home directory with name ".newApp" (without extension).
-		Vip.AddConfigPath(home)
-		Vip.SetConfigType("yaml")
-		Vip.SetConfigName(".proxypool.yaml")
+		logger.Errorf("Could not find config file: %s", ConfigFile)
+		os.Exit(-1)
 	}
 	// If a config file is found, read it in.
 	err := Vip.ReadInConfig()
 	if err != nil {
-		logger.Errorf("no such file or directory: %s", ConfigFile)
 		logger.Errorf("Failed to get config file: %s", ConfigFile)
 	}
 	Vip.WatchConfig()
@@ -57,42 +44,25 @@ func InitConfig() {
 		fmt.Printf("Config file changed: %s\n", e.Name)
 		GetInitConfig(Vip)
 	})
+	Vip.AllSettings()
 	GetInitConfig(Vip)
 }
 
-func GetParams(vip *viper.Viper) {
-	// system
-	SystemSetting.AppName = vip.GetString("system.appName")
-	SystemSetting.HttpAddr = vip.GetString("system.httpAddr")
-	SystemSetting.HttpPort = vip.GetString("system.httpPort")
-	SystemSetting.SessionExpires = vip.GetString("system.sessionExpires")
-
-	// database
-	DbSetting.DbType = vip.GetString("database.dbType")
-	DbSetting.Host = vip.GetString("database.host")
-	DbSetting.Port = vip.GetInt("database.port")
-	DbSetting.DbName = vip.GetString("database.dbName")
-	DbSetting.Username = vip.GetString("database.username")
-	DbSetting.Password = vip.GetString("database.password")
-	DbSetting.Prefix = vip.GetString("database.prefix")
-	DbSetting.Charset = vip.GetString("database.charset")
-	DbSetting.MaxIdleConns = vip.GetInt("database.maxIdleConns")
-	DbSetting.MaxOpenConns = vip.GetInt("database.maxOpenConns")
-	DbSetting.Level = vip.GetString("database.level")
-	DbSetting.SslMode = vip.GetString("database.sslMode")
-	DbSetting.TimeZone = vip.GetString("database.timeZone")
-
-	// log
-	LogSetting.FilePath = vip.GetString("log.filePath")
-	LogSetting.FileName = vip.GetString("log.fileName")
-	LogSetting.Level = vip.GetString("log.level")
-	LogSetting.Mode = vip.GetString("log.mode")
+// 解析配置文件，反序列化
+func parseYaml(vip *viper.Viper) {
+	setting := new(configModel.YamlSetting)
+	if err := vip.Unmarshal(setting); err != nil {
+		logger.Errorf("Unmarshal yaml faild: %s", err)
+		os.Exit(-1)
+	}
+	YamlSetting = setting
 }
 
 func GetInitConfig(vip *viper.Viper) {
-	GetParams(vip)
+	// 解析配置文件，反序列化
+	parseYaml(vip)
 	// 将日志写入文件或打印到控制台
-	logutil.InitLog(LogSetting)
+	logutil.InitLog(&YamlSetting.Log)
 	// 初始化数据库连接
-	database.InitDB(DbSetting)
+	database.InitDB(&YamlSetting.Database)
 }

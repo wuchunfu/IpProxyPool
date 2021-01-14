@@ -1,10 +1,9 @@
 package configModel
 
 type System struct {
-	AppName        string
-	HttpAddr       string
-	HttpPort       string
-	SessionExpires string
+	AppName  string
+	HttpAddr string
+	HttpPort string
 }
 
 type Database struct {
@@ -28,4 +27,10 @@ type Log struct {
 	FileName string
 	Level    string
 	Mode     string
+}
+
+type YamlSetting struct {
+	System   System
+	Database Database
+	Log      Log
 }

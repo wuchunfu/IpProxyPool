@@ -16,7 +16,7 @@ func main() {
 
 	// Start HTTP
 	go func() {
-		api.Run(config.SystemSetting)
+		api.Run(&config.YamlSetting.System)
 	}()
 
 	// Start Task

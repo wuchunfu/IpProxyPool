@@ -17,14 +17,16 @@ var StartCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(config.InitConfig)
 
+	setting := config.YamlSetting
+
 	StartCmd.PersistentFlags().StringVarP(&config.ConfigFile, "configFile", "f", "conf/config.yaml", "config file")
-	StartCmd.PersistentFlags().StringVarP(&config.SystemSetting.HttpAddr, "httpAddr", "a", "0.0.0.0", "http addr")
-	StartCmd.PersistentFlags().StringVar(&config.DbSetting.DbType, "dbType", "mysql", "database type")
-	StartCmd.PersistentFlags().StringVar(&config.DbSetting.Host, "host", "127.0.0.1", "database host")
-	StartCmd.PersistentFlags().IntVarP(&config.DbSetting.Port, "port", "p", 3306, "database port")
-	StartCmd.PersistentFlags().StringVar(&config.DbSetting.DbName, "dbName", "", "database name")
-	StartCmd.PersistentFlags().StringVar(&config.DbSetting.Username, "username", "", "database username")
-	StartCmd.PersistentFlags().StringVar(&config.DbSetting.Password, "password", "", "database password")
+	StartCmd.PersistentFlags().StringVarP(&setting.System.HttpAddr, "httpAddr", "a", "0.0.0.0", "http addr")
+	StartCmd.PersistentFlags().StringVar(&setting.Database.DbType, "dbType", "mysql", "database type")
+	StartCmd.PersistentFlags().StringVar(&setting.Database.Host, "host", "127.0.0.1", "database host")
+	StartCmd.PersistentFlags().IntVarP(&setting.Database.Port, "port", "p", 3306, "database port")
+	StartCmd.PersistentFlags().StringVar(&setting.Database.DbName, "dbName", "", "database name")
+	StartCmd.PersistentFlags().StringVar(&setting.Database.Username, "username", "", "database username")
+	StartCmd.PersistentFlags().StringVar(&setting.Database.Password, "password", "", "database password")
 	// 必须配置项
 	_ = StartCmd.MarkFlagRequired("configFile")
 
@@ -38,27 +40,6 @@ func init() {
 	_ = config.Vip.BindPFlag("database.password", StartCmd.PersistentFlags().Lookup("password"))
 
 	// 设置默认值
-	config.Vip.SetDefault("system.appName", "")
 	config.Vip.SetDefault("system.httpAddr", "0.0.0.0")
 	config.Vip.SetDefault("system.httpPort", "3000")
-	config.Vip.SetDefault("system.sessionExpires", "168h0m0s")
-
-	config.Vip.SetDefault("database.dbType", "mysql")
-	config.Vip.SetDefault("database.host", "127.0.0.1")
-	config.Vip.SetDefault("database.port", 3306)
-	config.Vip.SetDefault("database.dbName", "")
-	config.Vip.SetDefault("database.username", "")
-	config.Vip.SetDefault("database.password", "")
-	config.Vip.SetDefault("database.prefix", "proxy_")
-	config.Vip.SetDefault("database.charset", "utf8mb4")
-	config.Vip.SetDefault("database.maxIdleConns", 5)
-	config.Vip.SetDefault("database.maxOpenConns", 100)
-	config.Vip.SetDefault("database.level", "silent")
-	config.Vip.SetDefault("database.sslMode", "disable")
-	config.Vip.SetDefault("database.timeZone", "Asia/Shanghai")
-
-	config.Vip.SetDefault("log.filePath", "logs")
-	config.Vip.SetDefault("log.fileName", "run.log")
-	config.Vip.SetDefault("log.level", "info")
-	config.Vip.SetDefault("log.mode", "console")
 }
