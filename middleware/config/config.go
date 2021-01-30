@@ -5,17 +5,49 @@ import (
 	"github.com/fsnotify/fsnotify"
 	logger "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/wuchunfu/IpProxyPool/middleware/database"
-	"github.com/wuchunfu/IpProxyPool/middleware/logutil"
-	"github.com/wuchunfu/IpProxyPool/models/configModel"
 	"github.com/wuchunfu/IpProxyPool/util/fileutil"
 	"os"
 )
 
+type System struct {
+	AppName  string `yaml:"appName"`
+	HttpAddr string `yaml:"httpAddr"`
+	HttpPort string `yaml:"httpPort"`
+}
+
+type Database struct {
+	DbType       string `yaml:"dbType"`
+	Host         string `yaml:"host"`
+	Port         int    `yaml:"port"`
+	DbName       string `yaml:"dbName"`
+	Username     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	Prefix       string `yaml:"prefix"`
+	Charset      string `yaml:"charset"`
+	MaxIdleConns int    `yaml:"maxIdleConns"`
+	MaxOpenConns int    `yaml:"maxOpenConns"`
+	Level        string `yaml:"level"`
+	SslMode      string `yaml:"sslMode"`
+	TimeZone     string `yaml:"timeZone"`
+}
+
+type Log struct {
+	FilePath string `yaml:"filePath"`
+	FileName string `yaml:"fileName"`
+	Level    string `yaml:"level"`
+	Mode     string `yaml:"mode"`
+}
+
+type YamlSetting struct {
+	System   System   `yaml:"system"`
+	Database Database `yaml:"database"`
+	Log      Log      `yaml:"log"`
+}
+
 var (
-	Vip         = viper.New()
-	ConfigFile  = ""
-	YamlSetting = new(configModel.YamlSetting)
+	Vip           = viper.New()
+	ConfigFile    = ""
+	ServerSetting = new(YamlSetting)
 )
 
 // InitConfig reads in config file and ENV variables if set.
@@ -42,27 +74,19 @@ func InitConfig() {
 	Vip.OnConfigChange(func(e fsnotify.Event) {
 		logger.Infof("Config file changed: %s\n", e.Name)
 		fmt.Printf("Config file changed: %s\n", e.Name)
-		GetInitConfig(Vip)
+		ServerSetting = GetConfig(Vip)
 	})
 	Vip.AllSettings()
-	GetInitConfig(Vip)
+	ServerSetting = GetConfig(Vip)
 }
 
 // 解析配置文件，反序列化
-func parseYaml(vip *viper.Viper) {
-	setting := new(configModel.YamlSetting)
+func GetConfig(vip *viper.Viper) *YamlSetting {
+	setting := new(YamlSetting)
+	// 解析配置文件，反序列化
 	if err := vip.Unmarshal(setting); err != nil {
 		logger.Errorf("Unmarshal yaml faild: %s", err)
 		os.Exit(-1)
 	}
-	YamlSetting = setting
-}
-
-func GetInitConfig(vip *viper.Viper) {
-	// 解析配置文件，反序列化
-	parseYaml(vip)
-	// 将日志写入文件或打印到控制台
-	logutil.InitLog(&YamlSetting.Log)
-	// 初始化数据库连接
-	database.InitDB(&YamlSetting.Database)
+	return setting
 }

@@ -7,7 +7,7 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"github.com/wuchunfu/IpProxyPool/models/configModel"
+	"github.com/wuchunfu/IpProxyPool/middleware/config"
 	"github.com/wuchunfu/IpProxyPool/util/fileutil"
 	"io"
 	"os"
@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func InitLog(setting *configModel.Log) {
+func InitLog(setting *config.Log) {
 	file, logFilePath := LogFile(setting.FilePath, setting.FileName)
 
 	mode := strings.Replace(strings.ToLower(setting.Mode), " ", "", -1)

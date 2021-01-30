@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	logger "github.com/sirupsen/logrus"
+	"github.com/wuchunfu/IpProxyPool/middleware/config"
 	"github.com/wuchunfu/IpProxyPool/middleware/storage"
-	"github.com/wuchunfu/IpProxyPool/models/configModel"
 	"github.com/wuchunfu/IpProxyPool/util/iputil"
 	"net/http"
 	"time"
 )
 
 // Run for request
-func Run(setting *configModel.System) {
+func Run(setting *config.System) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", IndexHandler)

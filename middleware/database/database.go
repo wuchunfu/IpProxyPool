@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"github.com/wuchunfu/IpProxyPool/models/configModel"
+	"github.com/wuchunfu/IpProxyPool/middleware/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -23,7 +23,7 @@ func GetDB() *gorm.DB {
 	return DB
 }
 
-func InitDB(setting *configModel.Database) *gorm.DB {
+func InitDB(setting *config.Database) *gorm.DB {
 	dsn := getDbEngineDSN(setting)
 
 	newLogger := logger.New(
@@ -86,7 +86,7 @@ func setLogLevel(logLevel string) logger.LogLevel {
 }
 
 // 获取数据库引擎DSN  mysql,postgres
-func getDbEngineDSN(setting *configModel.Database) string {
+func getDbEngineDSN(setting *config.Database) string {
 	engine := strings.ToLower(setting.DbType)
 	dsn := ""
 	switch engine {

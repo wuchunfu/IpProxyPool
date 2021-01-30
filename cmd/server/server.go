@@ -17,7 +17,7 @@ var StartCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(config.InitConfig)
 
-	setting := config.YamlSetting
+	setting := config.ServerSetting
 
 	StartCmd.PersistentFlags().StringVarP(&config.ConfigFile, "configFile", "f", "conf/config.yaml", "config file")
 	StartCmd.PersistentFlags().StringVarP(&setting.System.HttpAddr, "httpAddr", "a", "0.0.0.0", "http addr")
