@@ -13,7 +13,7 @@ require (
 	github.com/mssola/user_agent v0.5.2
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.7.0
-	github.com/spf13/cobra v1.1.2
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/tebeka/strftime v0.1.5 // indirect
