@@ -50,16 +50,19 @@
 # 克隆项目
 git clone https://github.com/wuchunfu/IpProxyPool.git
 
-# 进入项目目录
+# 切换项目目录
 cd IpProxyPool
 
-# 执行 sql 脚本，并且修改数据库信息
+# 修改数据库信息
 vi conf/config.yaml
 
 host: 127.0.0.1
 dbName: IpProxyPool
 username: IpProxyPool
 password: IpProxyPool
+
+# 执行 sql 脚本，创建数据库表
+source docs/db/mysql.sql
 
 # 安装go依赖包
 go list (go mod tidy)
@@ -123,3 +126,9 @@ curl http://127.0.0.1:3000/https
 
 ## 注意
 本代码库仅用于学习研究使用，请勿用于非法用途，本人不承担由此带来的任何法律问题。
+
+## 交流
+
+欢迎关注 **全栈公园** ，有什么问题可以在 **全栈公园** 公众号输入 **开源交流** 进行咨询
+
+![全栈公园](./docs/images/FullStackPark.jpg)
