@@ -14,11 +14,9 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.1.3
-	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/spf13/viper v1.8.0
 	github.com/tebeka/strftime v0.1.5 // indirect
-	golang.org/x/net v0.0.0-20200904194848-62affa334b73
-	golang.org/x/sys v0.0.0-20201024232916-9f70ab9862d5 // indirect
+	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	gorm.io/driver/mysql v1.1.0
 	gorm.io/gorm v1.21.10
 )
