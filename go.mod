@@ -19,5 +19,5 @@ require (
 	github.com/tebeka/strftime v0.1.5 // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	gorm.io/driver/mysql v1.1.1
-	gorm.io/gorm v1.21.10
+	gorm.io/gorm v1.21.12
 )
