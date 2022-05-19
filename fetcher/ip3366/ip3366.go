@@ -23,7 +23,10 @@ func Ip33662() []*ipModel.IP {
 
 func Ip3366(proxyType int) []*ipModel.IP {
 	logger.Info("[ip3366] fetch start")
-
+	defer func() {
+		recover()
+		logger.Warnln("[ip3366] fetch error")
+	}()
 	list := make([]*ipModel.IP, 0)
 
 	indexUrl := "http://www.ip3366.net/free"
