@@ -22,7 +22,7 @@ func CheckProxy(ip *ipModel.IP) {
 	}
 }
 
-// CheckIP is to check the ip work or not
+// CheckIp is to check the ip work or not
 func CheckIp(ip *ipModel.IP) bool {
 	// 检测代理iP访问地址
 	var testIp string
