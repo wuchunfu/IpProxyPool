@@ -97,8 +97,8 @@ func UpdateIp(ip *IP) {
 			logger.Errorf("update ip: %s, error msg: %v", ipModel.ProxyHost, err.Error)
 			db.Rollback()
 		}
-		db.Commit()
 	}
+	db.Commit()
 }
 
 // DeleteIp 删除数据
