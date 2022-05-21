@@ -41,6 +41,7 @@ func Fetch(url string) *goquery.Document {
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Print("起死回生")
+			fmt.Println(err)
 		}
 	}()
 	if err != nil {

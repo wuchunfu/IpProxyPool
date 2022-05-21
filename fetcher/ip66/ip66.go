@@ -13,7 +13,10 @@ import (
 
 func Ip66() []*ipModel.IP {
 	logger.Info("[66ip] fetch start")
-
+	defer func() {
+		recover()
+		logger.Warnln("[66ip] fetch error")
+	}()
 	list := make([]*ipModel.IP, 0)
 
 	indexUrl := "http://www.66ip.cn"
