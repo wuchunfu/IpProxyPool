@@ -13,7 +13,7 @@ require (
 	github.com/mssola/user_agent v0.5.3
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.12.0
 	github.com/tebeka/strftime v0.1.5 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
