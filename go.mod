@@ -13,7 +13,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	golang.org/x/net v0.20.0
 	gorm.io/driver/mysql v1.5.2
-	gorm.io/gorm v1.25.6
+	gorm.io/gorm v1.25.7
 )
 
 require (
